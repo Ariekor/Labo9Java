@@ -41,6 +41,8 @@ public class ClientWeb {
         EtablirConnexion();
         RecevoirTexteServeur();
         EnvoyerRequete();
+        //lire ligne 1
+        //ecrire fichier
           
     }
     
@@ -95,9 +97,6 @@ public class ClientWeb {
         catch(Exception e )
         {
             System.out.println("J'ai pas trouver le serveur");
-        }
-        
-        
+        } 
     }
-    
 }
