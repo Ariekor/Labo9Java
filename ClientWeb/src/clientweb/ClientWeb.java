@@ -100,30 +100,30 @@ public class ClientWeb {
     void TraiterRequete(String fichier)
     {
         int b = -1;
-            boolean pasFini = true;
-            try
+        boolean pasFini = true;
+        try
+        {
+            // instancier les flux binaires
+            in = new BufferedInputStream(soc.getInputStream());
+            out = new BufferedOutputStream(
+                    new FileOutputStream(fichier));
+            //Transfert du contenu vers fichier
+            while (pasFini)
             {
-                // instancier les flux binaires
-                in = new BufferedInputStream(soc.getInputStream());
-                out = new BufferedOutputStream(
-                        new FileOutputStream(fichier));
-                //Transfert du contenu vers fichier
-                while (pasFini)
+                b = in.read();      //Lit un bit à la fois
+                if(b != -1)
                 {
-                    b = in.read();      //Lit un bit à la fois
-                    if(b != -1)
-                    {
-                        out.write(b);   //Écrit un bit à la fois
-                    }
-                    else
-                    {
-                        pasFini = false;
-                    }
+                    out.write(b);   //Écrit un bit à la fois
                 }
-                in.close();
-                out.close();
+                else
+                {
+                    pasFini = false;
+                }
             }
-            catch(IOException e) { e.printStackTrace(); }
+            in.close();
+            out.close();
+        }
+        catch(IOException e) { e.printStackTrace(); }
     }
     //Lit la requête à la console et la transfert au serveur.
     String EnvoyerRequete () throws Exception
