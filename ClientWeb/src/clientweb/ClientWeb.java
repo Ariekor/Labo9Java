@@ -12,12 +12,13 @@ public class ClientWeb {
     
     int port = 80;
     final int NUMPORTMAX = 65535;
-    final String PATH = "C:\\Client";
+    final String PATH = "C:\\Copies";
     BufferedReader reader;
     PrintWriter writer;
     Socket soc;
     final int DELAI = 500;
     
+        
     void SetPort(int p)
     {
         if (p < NUMPORTMAX && p > 0)
@@ -40,10 +41,12 @@ public class ClientWeb {
     {
         EtablirConnexion();
         RecevoirTexteServeur();
-        EnvoyerRequete();
+        String fichier = EnvoyerRequete();
         //lire ligne 1
-        //ecrire fichier
-          
+        RecevoirLigneTexteServeur();
+        //lire bin et ecrire fichier 
+        TraiterRequete(fichier);
+           
     }
     
     void EtablirConnexion() throws Exception
@@ -75,15 +78,53 @@ public class ClientWeb {
         catch ( SocketTimeoutException e) {} 
     }
     
-    void EnvoyerRequete () throws Exception
+    void RecevoirLigneTexteServeur() throws Exception
     {
-        String s = "";
+        try
+        {               
+            System.out.println(reader.readLine());
+        }
+        catch ( SocketTimeoutException e) {} 
+    }
+    
+    void TraiterRequete(String fichier)
+    {
+        int b = -1;
+            boolean pasFini = true;
+            try
+            {
+                //transfert en binaire
+                BufferedInputStream in = new BufferedInputStream(soc.getInputStream());
+                BufferedOutputStream out = new BufferedOutputStream(
+                                            new FileOutputStream(PATH + "\\" + fichier));
+                while (pasFini)
+                {
+                    b = in.read();
+                    if(b != -1)
+                    {
+                        out.write(b);
+                    }
+                    else
+                    {
+                        pasFini = false;
+                    }
+                }
+                in.close();
+                out.close();
+            }
+            catch(IOException e) { e.printStackTrace(); }
+    }
+    
+    String EnvoyerRequete () throws Exception
+    {
+        String s;
         System.out.println();
         System.out.print("Fichier a récupérer : ");
         BufferedReader readConsole = new BufferedReader(
 					new InputStreamReader(System.in));
         s = readConsole.readLine();
         writer.println("Get " + s);
+        return s;
     }
     
     
