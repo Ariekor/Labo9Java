@@ -10,13 +10,17 @@ import java.util.concurrent.TimeoutException;
 
 public class ClientWeb {
     
-    int port = 80;
+    final int DELAI = 500;
     final int NUMPORTMAX = 65535;
+    final String REUSSITE = "200";
+    int port = 80;
+    Socket soc;
+    //flux textes
     BufferedReader reader;
     PrintWriter writer;
-    Socket soc;
-    final int DELAI = 500;
-    
+    //flux binaires
+    BufferedInputStream in;
+    BufferedOutputStream out;
         
     void SetPort(int p)
     {
@@ -38,21 +42,22 @@ public class ClientWeb {
     
     void Traitement() throws Exception
     {
-        EtablirConnexion();
-        RecevoirTexteServeur();
-        String fichier = EnvoyerRequete();
-        //lire ligne 1
-        RecevoirLigneTexteServeur();
-        //lire bin et ecrire fichier 
-        TraiterRequete(fichier);
-           
+        EtablirConnexion();                   // Le nom le dit...
+        RecevoirTexteServeur();               // Affiche le contenu téléchargable et les sous-dossiers
+        String fichier = EnvoyerRequete();    // On récupère aussi le nom du fichier qu'on télécharge     
+        String code = RecevoirLigneTexteServeur(); // On récupère aussi le code d'état de la requête
+        if  (code.equals(REUSSITE))               // On ne crée le fichier qu'en cas de réussite
+        {
+            TraiterRequete(fichier);  //on crée ou écrase loalement le fichier téléchargé
+        }                 
     }
-    
+     
     void EtablirConnexion() throws Exception
     {
         soc = new Socket("localhost",port);
         try
         {
+            // instancier les flux textes
             reader = new BufferedReader(
                     new InputStreamReader( soc.getInputStream() ) );
             writer = new PrintWriter(
@@ -61,29 +66,34 @@ public class ClientWeb {
         catch (Exception e){System.err.println(e.getMessage());}
     }
     
+    //Recoit une série de ligne tant que DELAI non atteint
+    //On ne peut se fier à "ligne non vide" à cause du prompt => qui est "print()"
     void RecevoirTexteServeur() throws Exception
     {
-        String s = " ";
-          
+        String s = " ";          
         try
         {
-             soc.setSoTimeout(DELAI);
+             soc.setSoTimeout(DELAI);  
              while (s != null)
              {
                  s = reader.readLine();
                  System.out.println(s);
              }
         }
-        catch ( SocketTimeoutException e) {} 
+        catch ( SocketTimeoutException e) {/*Permet de continuer malgré "=>" non reçu.*/} 
     }
     
-    void RecevoirLigneTexteServeur() throws Exception
+    //On recoit une seule ligne qui contient le code de réussite ou d'échec de la requête envoyée
+    String RecevoirLigneTexteServeur() throws Exception
     {
+        String code = "ERR";
         try
-        {               
-            System.out.println(reader.readLine());
+        {      
+            code = reader.readLine();
+            System.out.println(code);            
         }
         catch ( SocketTimeoutException e) {} 
+        return code.split(" ")[0]; // 
     }
     
     void TraiterRequete(String fichier)
@@ -92,16 +102,17 @@ public class ClientWeb {
             boolean pasFini = true;
             try
             {
-                //transfert en binaire
-                BufferedInputStream in = new BufferedInputStream(soc.getInputStream());
-                BufferedOutputStream out = new BufferedOutputStream(
-                                            new FileOutputStream(fichier));
+                // instancier les flux binaires
+                in = new BufferedInputStream(soc.getInputStream());
+                out = new BufferedOutputStream(
+                        new FileOutputStream(fichier));
+                //Transfert du contenu vers fichier
                 while (pasFini)
                 {
-                    b = in.read();
+                    b = in.read();      //Lit un bit à la fois
                     if(b != -1)
                     {
-                        out.write(b);
+                        out.write(b);   //Écrit un bit à la fois
                     }
                     else
                     {
@@ -113,15 +124,14 @@ public class ClientWeb {
             }
             catch(IOException e) { e.printStackTrace(); }
     }
-    
+    //Lit la requête à la console et la transfert au serveur.
     String EnvoyerRequete () throws Exception
-    {
-        String s;
-        System.out.println();
-        System.out.print("Fichier a récupérer : ");
+    {         
+        System.out.println();       
+        System.out.print("Fichier a récupérer : "); //remplace le prompt
         BufferedReader readConsole = new BufferedReader(
 					new InputStreamReader(System.in));
-        s = readConsole.readLine();
+        String s = readConsole.readLine();
         writer.println("Get " + s);
         return s;
     }
