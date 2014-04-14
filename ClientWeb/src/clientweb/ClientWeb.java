@@ -12,7 +12,6 @@ public class ClientWeb {
     
     int port = 80;
     final int NUMPORTMAX = 65535;
-    final String PATH = "C:\\Copies";
     BufferedReader reader;
     PrintWriter writer;
     Socket soc;
@@ -96,7 +95,7 @@ public class ClientWeb {
                 //transfert en binaire
                 BufferedInputStream in = new BufferedInputStream(soc.getInputStream());
                 BufferedOutputStream out = new BufferedOutputStream(
-                                            new FileOutputStream(PATH + "\\" + fichier));
+                                            new FileOutputStream(fichier));
                 while (pasFini)
                 {
                     b = in.read();
