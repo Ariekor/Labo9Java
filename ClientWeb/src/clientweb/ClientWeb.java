@@ -1,5 +1,6 @@
-// Client web
+// ClientWeb.java
 // Fait par : Simon Bouchard et Isabelle Angrignon
+// Fait le 2014-04-11
 // Client qui transfert un fichier binaire sur le disque
 
 package clientweb;
