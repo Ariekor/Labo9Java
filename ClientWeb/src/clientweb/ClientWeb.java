@@ -125,8 +125,7 @@ public class ClientWeb {
         writer.println("Get " + s);
         return s;
     }
-    
-    
+   
     public static void main(String[] args)
     {
         ClientWeb client = new ClientWeb(args);
