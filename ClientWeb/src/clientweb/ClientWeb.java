@@ -88,12 +88,12 @@ public class ClientWeb {
     String RecevoirLigneTexteServeur() throws Exception
     {
         String code = "ERR";
-        try
-        {      
+   /*     try
+        {   */   
             code = reader.readLine();
             System.out.println(code);            
-        }
-        catch ( SocketTimeoutException e) {} 
+   /*     }
+        catch ( SocketTimeoutException e) {} */
         return code.split(" ")[0]; // 
     }
     
